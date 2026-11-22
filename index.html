@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Heiz-Helfer – Heizkosten, beschlagene Fenster und Lüften einfach nachrechnen</title>
+<meta name="description" content="Antworten auf typische Winterfragen in wenigen Klicks: Was kostet das Heizen? Ist der Heizlüfter oder die Heizung billiger? Warum beschlägt das Fenster? Wie lange lüften? Nachzahlung oder Guthaben? Kostenlos, ohne Anmeldung.">
+<style>
+:root{--bg:#f6f4f1;--card:#fff;--ink:#1d1b19;--muted:#66615b;--line:#e4dfd8;--soft:#f0ece6;
+--accent:#b4501f;--accent-ink:#fff;--accent-soft:#f8e8de;--ok:#2b7a30;--ok-soft:#e4f2e5;--warn:#9a5a00;--warn-soft:#fbefd9;--bad:#b0261f;--bad-soft:#fbe4e1;--cold:#2c5d9e}
+@media (prefers-color-scheme:dark){:root{--bg:#141210;--card:#1f1c19;--ink:#efebe6;--muted:#a8a199;--line:#38332e;--soft:#2a2622;
+--accent:#f0956a;--accent-ink:#2a1206;--accent-soft:#3a2418;--ok:#7cc480;--ok-soft:#1e331f;--warn:#e8b15d;--warn-soft:#382c17;--bad:#ef8a80;--bad-soft:#3b1e1b;--cold:#8fb3e8}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+.wrap{max-width:560px;margin:0 auto;padding:18px 16px 60px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:18px}
+.brand{font-weight:700;font-size:1.05rem;display:flex;align-items:center;gap:6px;cursor:pointer;background:none;border:0;color:var(--ink);font-family:inherit;padding:0}
+.brand svg{width:22px;height:22px;color:var(--accent)}
+.back{background:none;border:0;color:var(--accent);font:inherit;font-weight:600;cursor:pointer;padding:6px 0}
+h1{font-size:1.6rem;line-height:1.2;margin:0 0 6px;letter-spacing:-.01em}
+.sub{color:var(--muted);margin:0 0 20px}
+.step{font-size:.85rem;color:var(--muted);margin-bottom:4px}
+h2{font-size:1.35rem;line-height:1.25;margin:0 0 14px}
+.qlist{display:flex;flex-direction:column;gap:10px}
+.q{display:flex;align-items:center;gap:14px;width:100%;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;font:inherit;color:inherit;cursor:pointer;text-decoration:none}
+.q:active,.pill:active,.card:active{transform:scale(.98)}
+.q .ic{flex:0 0 46px;height:46px;border-radius:12px;background:var(--accent-soft);color:var(--accent);display:flex;align-items:center;justify-content:center}
+.q .ic svg{width:26px;height:26px}
+.q b{display:block;font-size:1.05rem}
+.q span{display:block;color:var(--muted);font-size:.88rem}
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+@media (max-width:380px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.card{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;min-height:92px;padding:12px 6px;text-align:center;background:var(--card);border:1px solid var(--line);border-radius:14px;font:inherit;font-size:.9rem;line-height:1.2;color:inherit;cursor:pointer}
+.card .e{font-size:1.8rem;line-height:1}
+.card.on{border:2px solid var(--accent);background:var(--accent-soft)}
+.pills{display:flex;flex-wrap:wrap;gap:8px}
+.pill{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;padding:10px 16px;font:inherit;font-size:.95rem;cursor:pointer;min-height:46px}
+.pill.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:600}
+.slider{margin:4px 0 4px}
+input[type=range]{width:100%;accent-color:var(--accent);height:32px}
+.sl-head{display:flex;justify-content:space-between;align-items:baseline}
+.sl-val{font-size:1.25rem;font-weight:700}
+.answer{margin-top:18px;border-radius:18px;padding:18px;background:var(--accent-soft)}
+.answer.ok{background:var(--ok-soft)}.answer.warn{background:var(--warn-soft)}.answer.bad{background:var(--bad-soft)}
+.answer .lbl{font-size:.8rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+.answer .say{font-size:1.3rem;font-weight:700;line-height:1.3;margin:6px 0 8px}
+.answer .more{color:var(--ink);font-size:.95rem}
+.answer.ok .say{color:var(--ok)}.answer.warn .say{color:var(--warn)}.answer.bad .say{color:var(--bad)}
+.tips{margin:10px 0 0;padding-left:20px;font-size:.92rem}
+.tips li{margin:4px 0}
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.btn{border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);border-radius:12px;padding:11px 16px;font:inherit;font-weight:600;cursor:pointer;min-height:46px}
+.btn.ghost{background:transparent;color:var(--accent)}
+.msg{font-size:.88rem;color:var(--ok);align-self:center}
+details.fine{margin-top:16px;border-top:1px solid var(--line);padding-top:12px}
+details.fine summary{cursor:pointer;color:var(--accent);font-weight:600;list-style:none}
+details.fine summary::before{content:"⚙ "}
+.fields{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.field{display:block}
+.field span{display:block;font-size:.82rem;color:var(--muted);margin-bottom:4px}
+input[type=number],select{font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px;height:48px;width:100%}
+input:focus,select:focus,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.formula{font-size:.85rem;color:var(--muted);margin-top:10px;line-height:1.45}
+.hint{font-size:.85rem;color:var(--muted);margin:8px 0 0}
+.bars{margin:14px 0 4px;display:flex;flex-direction:column;gap:8px}
+.bar{font-size:.88rem}
+.bar .track{height:14px;border-radius:7px;background:var(--soft);overflow:hidden;margin-top:3px}
+.bar .fill{height:100%;border-radius:7px;background:var(--accent)}
+.bar .fill.best{background:var(--ok)}
+.thermo{display:flex;gap:6px;align-items:stretch;margin:14px 0 4px}
+.thermo div{flex:1;border-radius:10px;padding:8px 4px;text-align:center;font-size:.8rem;line-height:1.25;background:var(--soft)}
+.thermo div b{display:block;font-size:1.05rem}
+.thermo .t-cold{background:color-mix(in srgb,var(--cold) 18%,var(--card))}
+.thermo .t-mark{outline:2px solid var(--ink)}
+.hide{display:none!important}
+footer{margin-top:28px;font-size:.8rem;color:var(--muted);text-align:center;line-height:1.5}
+footer a{color:var(--accent)}
+.gap{height:18px}
+</style>
+<script data-goatcounter="https://schrauberbits.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <button class="brand" id="home" aria-label="Zur Startseite"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 14.5V5a2 2 0 1 1 4 0v9.5a4 4 0 1 1-4 0z"/><path d="M12 9v7"/></svg>Heiz-Helfer</button>
+    <button class="back hide" id="back">← Andere Frage</button>
+  </div>
+  <main id="app"></main>
+  <footer>Richtwerte ohne Gewähr. Preise als Voreinstellung: Stand November 2026, bitte eigene Werte aus der Abrechnung eintragen. Bei Schimmel, Feuchteschäden oder Mietfragen helfen Fachleute, Mieterverein oder Verbraucherzentrale.<br>Kostenlos, ohne Anmeldung, ohne Werbung – ein Hobbyprojekt.<br>Mehr Helfer: <a href="https://schrauberbits.github.io/watt-helfer/">Watt-Helfer</a> · <a href="https://schrauberbits.github.io/pc-helfer/">PC-Helfer</a></footer>
+</div>
+
+<script>
+// ================= Grundlagen =================
+const app=document.getElementById('app');
+const fmt=(n,d=0)=>Number(n).toLocaleString('de-DE',{minimumFractionDigits:d,maximumFractionDigits:d});
+const eur=n=>Number(n).toLocaleString('de-DE',{style:'currency',currency:'EUR',minimumFractionDigits:Math.abs(n)<100?2:0,maximumFractionDigits:Math.abs(n)<100?2:0});
+const ct=n=>n<1?fmt(n*100,0)+' Cent':eur(n);
+const num=v=>{const n=parseFloat(String(v).replace(',','.'));return isFinite(n)?n:0};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const h=(html)=>{app.innerHTML=html;window.scrollTo(0,0)};
+const gradC=t=>fmt(t,Number.isInteger(t)?0:1)+' °C';
+
+// Nutzung zählen (eigene Namen mit "heiz-")
+const gezaehlt={}; let interagiert=false;
+app.addEventListener('click',()=>{interagiert=true},true); app.addEventListener('input',()=>{interagiert=true},true); app.addEventListener('change',()=>{interagiert=true},true);
+function senden(path,title,versuch){
+  try{ if(window.goatcounter&&window.goatcounter.count){ window.goatcounter.count({path,title,event:true}); return; } }catch(e){ return; }
+  if(versuch<40) setTimeout(()=>senden(path,title,versuch+1),250);
+}
+function zaehle(name,art){ art=art||'antwort'; if(art==='antwort'&&!interagiert&&name!=='kopiert') return;
+  const key='heiz-'+art+'-'+name; if(gezaehlt[key]) return; gezaehlt[key]=1; senden(key,'Heiz-Helfer '+(art==='aufruf'?'Aufruf: ':'Antwort: ')+name,0); }
+
+async function kopieren(text,el){
+  try{await navigator.clipboard.writeText(text);el.textContent='Kopiert ✓';}catch(e){el.textContent='Bitte Text markieren und kopieren.';}
+  zaehle('kopiert'); setTimeout(()=>{el.textContent=''},2500);
+}
+function antwortBox(cls,label,say,more,tips,copyText,formel,extra){
+  return `<div class="answer ${cls}"><div class="lbl">${label}</div><div class="say">${say}</div>${more?`<div class="more">${more}</div>`:''}
+  ${extra||''}
+  ${tips&&tips.length?`<ul class="tips">${tips.map(t=>`<li>${t}</li>`).join('')}</ul>`:''}
+  ${formel?`<div class="formula">${formel}</div>`:''}
+  <div class="actions"><button class="btn ghost" data-copy>Antwort kopieren</button><span class="msg" data-msg></span></div>
+  <textarea class="hide" data-text>${esc(copyText)}</textarea></div>`;
+}
+app.addEventListener('click',e=>{const b=e.target.closest('[data-copy]');if(!b)return;const box=b.closest('.answer');kopieren(box.querySelector('[data-text]').value,box.querySelector('[data-msg]'));});
+function pillGroup(id,cb){document.getElementById(id).addEventListener('click',e=>{const b=e.target.closest('.pill');if(!b)return;b.parentElement.querySelectorAll('.pill').forEach(p=>p.classList.toggle('on',p===b));cb(b.dataset.v);});}
+const pills=(id,list,sel)=>`<div class="pills" id="${id}">${list.map(p=>`<button class="pill${String(p[0])===String(sel)?' on':''}" data-v="${p[0]}">${p[1]}</button>`).join('')}</div>`;
+const slider=(id,label,min,max,step,val)=>`<div class="slider"><div class="sl-head"><span class="step">${label}</span><span class="sl-val" id="${id}v"></span></div><input type="range" id="${id}" min="${min}" max="${max}" step="${step}" value="${val}" aria-label="${label}"></div>`;
+
+// ================= Physik =================
+// Sättigungsdampfdruck in hPa (Magnus-Formel über Wasser)
+const sdd=T=>6.112*Math.exp(17.62*T/(243.12+T));
+const taupunkt=(T,rf)=>{const a=Math.log(rf/100)+17.62*T/(243.12+T);return 243.12*a/(17.62-a);};
+const absFeuchte=(T,rf)=>216.7*(rf/100*sdd(T))/(273.15+T); // g/m³
+const rfBei=(T,rf,T2)=>Math.min(100,rf*sdd(T)/sdd(T2)); // relative Feuchte derselben Luft bei anderer Temperatur
+
+// ================= Preise (Voreinstellung, Stand November 2026; editierbar) =================
+const P={strom:35,gas:11,fern:16,oel:1.65,wp:28};
+// Heizarten: Kosten je kWh Wärme in Euro, abhängig von Außentemperatur (für Wärmepumpe und Klimagerät)
+const HEIZARTEN=[
+ ['gas','🔥','Gasheizung'],['fern','🏙️','Fernwärme'],['oel','🛢️','Ölheizung'],
+ ['wp','♨️','Wärmepumpe'],['klima','❄️','Split-Klimagerät'],['strom','🔌','Heizlüfter, Ölradiator, Infrarot']
+];
+const copWP=te=>Math.max(1.8,Math.min(4.5,2.9+0.08*te));     // Luft-Wasser-Wärmepumpe, Faustwert
+const copKlima=te=>Math.max(2,Math.min(5,3.3+0.1*te));        // Split-Klimagerät (Luft-Luft), Faustwert
+function preisWaerme(art,te){
+  switch(art){
+    case 'gas': return {e:P.gas/100/0.9, wie:`${fmt(P.gas,1)} ct/kWh Gas ÷ 90 % Wirkungsgrad`};
+    case 'fern': return {e:P.fern/100, wie:`${fmt(P.fern,1)} ct/kWh Fernwärme`};
+    case 'oel': return {e:P.oel/10/0.85, wie:`${fmt(P.oel,2)} €/l, 1 l ≈ 10 kWh, 85 % Wirkungsgrad`};
+    case 'wp': {const c=copWP(te);return {e:P.wp/100/c, wie:`${fmt(P.wp,1)} ct/kWh Strom ÷ ${fmt(c,1)} (Wärmepumpe bei ${gradC(te)} außen)`};}
+    case 'klima': {const c=copKlima(te);return {e:P.strom/100/c, wie:`${fmt(P.strom,1)} ct/kWh Strom ÷ ${fmt(c,1)} (Klimagerät bei ${gradC(te)} außen)`};}
+    default: return {e:P.strom/100, wie:`${fmt(P.strom,1)} ct/kWh Strom, 1 kWh Strom = 1 kWh Wärme`};
+  }
+}
+function preisFelder(){
+  return `<div class="fields">
+   <label class="field"><span>Strom (ct/kWh)</span><input type="number" data-preis="strom" inputmode="decimal" step="0.1" value="${P.strom}"></label>
+   <label class="field"><span>Gas (ct/kWh)</span><input type="number" data-preis="gas" inputmode="decimal" step="0.1" value="${P.gas}"></label>
+   <label class="field"><span>Fernwärme (ct/kWh)</span><input type="number" data-preis="fern" inputmode="decimal" step="0.1" value="${P.fern}"></label>
+   <label class="field"><span>Heizöl (€/Liter)</span><input type="number" data-preis="oel" inputmode="decimal" step="0.01" value="${P.oel}"></label>
+   <label class="field"><span>Wärmepumpen-Strom (ct/kWh)</span><input type="number" data-preis="wp" inputmode="decimal" step="0.1" value="${P.wp}"></label>
+  </div><p class="hint">Den Arbeitspreis findest du auf deiner Abrechnung. Voreinstellung: grobe Durchschnittswerte November 2026.</p>`;
+}
+function preisBind(cb){document.querySelectorAll('[data-preis]').forEach(el=>el.addEventListener('input',()=>{P[el.dataset.preis]=num(el.value);cb()}));}
+
+// Wärmebedarf eines Raums: W/m² bei −12 °C außen, nach Baujahr
+const GEBAEUDE=[[110,'Altbau, ungedämmt'],[75,'Altbau, teilsaniert'],[55,'ab ca. 1995'],[35,'Neubau, gut gedämmt']];
+const LAGE=[[0.7,'Wohnung mit Nachbarn rundum'],[1,'Eckwohnung, Dach, Haus']];
+function heizleistung(m2,q,lage,ti,te){ return Math.max(0,q*m2*lage*(ti-te)/32)/1000; } // kW
+
+const STUFEN=[['6','✱'],['12','1'],['16','2'],['20','3'],['24','4'],['28','5']];
+
+const ICON={
+ kosten:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M15 9a3.5 3.5 0 0 0-6 2v2a3.5 3.5 0 0 0 6 2M7.5 11h5M7.5 13.5h5"/></svg>',
+ vergleich:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 20V10M12 20V4M19 20v-7"/></svg>',
+ fenster:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="1.5"/><path d="M12 3v18M4 12h16"/><path d="M7.5 15.5v1.5M9 17.5v1"/></svg>',
+ lueften:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h11a3 3 0 1 0-3-3M3 12h15a3 3 0 1 1-3 3M3 16h7"/></svg>',
+ abschlag:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 12h7M9 16h5"/></svg>',
+ strom:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg>'
+};
+
+// ================= Startseite =================
+const FRAGEN=[
+ ['kosten','Was kostet mich das Heizen?','Pro Stunde, Nacht und Monat – mit Thermostat-Stufe'],
+ ['vergleich','Heizlüfter, Klimagerät oder Heizung?','Was ist am billigsten – gibt es sparsame Heizlüfter?'],
+ ['fenster','Warum beschlägt mein Fenster?','Kondenswasser und Schimmelgefahr prüfen'],
+ ['lueften','Wie lange soll ich lüften?','Und wird die Luft dadurch trockener?'],
+ ['abschlag','Nachzahlung oder Guthaben?','Abschlag für Gas, Fernwärme oder Strom prüfen']
+];
+function start(){
+  h(`<h1>Was möchtest du wissen?</h1><p class="sub">Tippe eine Frage an – die Antwort kommt in wenigen Schritten.</p>
+  <div class="qlist">${FRAGEN.map(f=>`<button class="q" data-go="${f[0]}"><span class="ic">${ICON[f[0]]}</span><span><b>${f[1]}</b><span>${f[2]}</span></span></button>`).join('')}
+  <a class="q" href="https://schrauberbits.github.io/watt-helfer/#kosten"><span class="ic">${ICON.strom}</span><span><b>Was kostet mein Heizlüfter mit X Watt?</b><span>Im Watt-Helfer nachrechnen ↗</span></span></a></div>`);
+}
+app.addEventListener('click',e=>{const b=e.target.closest('[data-go]');if(b) location.hash=b.dataset.go;});
+
+// ================= 1) Heizkosten =================
+const K={art:'gas',m2:20,q:75,lage:0.7,ti:20,te:5,std:8,tage:30};
+function kosten(){
+  h(`<div class="step">Schritt 1 von 2</div><h2>Womit heizt du?</h2>
+  <div class="grid">${HEIZARTEN.map(a=>`<button class="card${a[0]===K.art?' on':''}" data-art="${a[0]}"><span class="e">${a[1]}</span>${a[2]}</button>`).join('')}</div>
+  <div class="gap"></div><div class="step">Schritt 2 von 2</div><h2 style="margin-bottom:6px">Welcher Raum, wie warm, wie lange?</h2>
+  ${slider('km','Raumgröße',5,150,1,K.m2)}
+  <div class="step" style="margin-top:6px">Thermostat-Stufe (oder Raumtemperatur)</div>
+  ${pills('kti',STUFEN.map(s=>[s[0],s[1]==='✱'?'✱ Frostschutz':'Stufe '+s[1]]),K.ti)}
+  ${slider('ks','Wie lange am Stück',1,24,1,K.std)}
+  <div class="step" style="margin-top:6px">Wie kalt ist es draußen?</div>
+  ${pills('kte',[[-10,'−10 °C'],[-5,'−5 °C'],[0,'0 °C'],[5,'5 °C'],[10,'10 °C']],K.te)}
+  <div id="kres"></div>
+  <details class="fine"><summary>Genauer einstellen</summary>
+   <div class="step" style="margin-top:10px">Gebäude</div>${pills('kq',GEBAEUDE,K.q)}
+   <div class="step" style="margin-top:10px">Lage</div>${pills('kl',LAGE,K.lage)}
+   <div class="fields"><label class="field"><span>Raumtemperatur selbst (°C)</span><input type="number" id="kt" inputmode="decimal" step="0.5" value="${K.ti}"></label>
+   <label class="field"><span>Tage im Monat mit Heizen</span><input type="number" id="kd" inputmode="numeric" min="1" max="31" value="${K.tage}"></label></div>
+   ${preisFelder()}</details>`);
+  const upd=()=>{K.m2=num(km.value);K.std=num(ks.value);kmv.textContent=fmt(K.m2)+' m²';ksv.textContent=K.std+(K.std===1?' Stunde':' Stunden');kupd();};
+  km.addEventListener('input',upd); ks.addEventListener('input',upd);
+  pillGroup('kti',v=>{K.ti=num(v);kt.value=K.ti;kupd()}); pillGroup('kte',v=>{K.te=num(v);kupd()}); pillGroup('kq',v=>{K.q=num(v);kupd()}); pillGroup('kl',v=>{K.lage=num(v);kupd()});
+  kt.addEventListener('input',()=>{K.ti=num(kt.value);document.querySelectorAll('#kti .pill').forEach(p=>p.classList.toggle('on',num(p.dataset.v)===K.ti));kupd()});
+  kd.addEventListener('input',()=>{K.tage=Math.min(31,Math.max(1,num(kd.value)||30));kupd()});
+  preisBind(kupd); upd();
+}
+function kupd(){
+  const art=HEIZARTEN.find(a=>a[0]===K.art), kw=heizleistung(K.m2,K.q,K.lage,K.ti,K.te), pw=preisWaerme(K.art,K.te);
+  const proStd=kw*pw.e, block=proStd*K.std, monat=block*K.tage;
+  const stufe=STUFEN.find(s=>num(s[0])===K.ti), stTxt=stufe?(stufe[1]==='✱'?'Frostschutz (ca. 6 °C)':'Stufe '+stufe[1]+' (ca. '+K.ti+' °C)'):gradC(K.ti);
+  const gradWeniger=K.ti-K.te>1?1/(K.ti-K.te):0;
+  let say,more,tips=[];
+  if(kw<=0){say='Bei diesen Werten muss die Heizung gar nicht heizen.';more=`Draußen ist es mit ${gradC(K.te)} nicht kälter als die gewünschten ${gradC(K.ti)}.`;}
+  else{
+    say=`Das kostet etwa ${ct(block)} für ${K.std===1?'eine Stunde':K.std+' Stunden'}.`;
+    more=`Der Raum braucht bei ${gradC(K.te)} draußen etwa <b>${fmt(kw,2)} kW</b> Heizleistung, das sind <b>${ct(proStd)} pro Stunde</b> mit ${esc(art[2])}. Jeden Tag so: rund <b>${eur(monat)} im Monat</b>.`;
+    if(gradWeniger>0) tips.push(`1 °C weniger spart hier etwa ${fmt(gradWeniger*100)} % – zum Beispiel ${ct(block*gradWeniger)} je ${K.std} Stunden.`);
+  }
+  if(K.art==='strom') tips.push('Mit Strom direkt zu heizen ist meist die teuerste Art. Ein Klimagerät mit Heizfunktion macht aus 1 kWh Strom etwa 3–4 kWh Wärme.');
+  tips.push('Der Thermostat ist kein Gaspedal: Stufe 5 heizt nicht schneller, sie hört nur später auf. Stufe 3 entspricht etwa 20 °C.');
+  if(K.ti<=16&&kw>0) tips.push('Räume nicht dauerhaft unter 16 °C auskühlen lassen – an kalten Außenwänden steigt sonst die Schimmelgefahr.');
+  const copy=kw<=0?`Bei ${gradC(K.te)} draußen und ${gradC(K.ti)} drinnen muss nicht geheizt werden.`:`Heizkosten: ${fmt(K.m2)} m² (${GEBAEUDE.find(g=>g[0]===K.q)[1]}), ${stTxt}, ${gradC(K.te)} draußen → ca. ${fmt(kw,2)} kW Heizleistung. Mit ${art[2]} (${pw.wie}) etwa ${ct(proStd)} pro Stunde, ${ct(block)} für ${K.std} Stunden, rund ${eur(monat)} im Monat bei täglich ${K.std} Stunden. 1 °C weniger spart etwa ${fmt(gradWeniger*100)} %.`;
+  kres.innerHTML=antwortBox('',`Antwort · ${esc(stTxt)}`,say,more,tips,copy,`Rechnung: ${fmt(K.q)} W/m² × ${fmt(K.m2)} m² × ${fmt(K.lage,1)} × (${gradC(K.ti)} − ${gradC(K.te)}) ÷ 32 K = ${fmt(kw,2)} kW; Preis je kWh Wärme: ${pw.wie} = ${fmt(pw.e*100,1)} ct. Schätzung – Fenster, Lüften und Sonne verändern den Wert.`);
+  zaehle('kosten');
+}
+app.addEventListener('click',e=>{const c=e.target.closest('[data-art]');if(!c)return;K.art=c.dataset.art;document.querySelectorAll('[data-art]').forEach(x=>x.classList.toggle('on',x===c));kupd();});
+
+// ================= 2) Vergleich =================
+const V={kw:1.5,te:5,std:4};
+function vergleich(){
+  h(`<h2>Heizlüfter, Klimagerät oder Heizung – was ist billiger?</h2>
+  <div class="step">Wie viel Wärme brauchst du?</div>
+  ${pills('vk',[[1,'kleines Zimmer (1 kW)'],[1.5,'Zimmer (1,5 kW)'],[2.5,'Wohnzimmer (2,5 kW)']],V.kw)}
+  <div class="gap"></div><div class="step">Wie kalt ist es draußen?</div>
+  ${pills('vte',[[-10,'−10 °C'],[0,'0 °C'],[5,'5 °C'],[10,'10 °C']],V.te)}
+  ${slider('vs','Wie lange am Tag',1,24,1,V.std)}
+  <div id="vres"></div>
+  <details class="fine"><summary>Genauer einstellen</summary>
+   <div class="fields"><label class="field"><span>Wärme in kW</span><input type="number" id="vkw" inputmode="decimal" step="0.1" min="0" value="${V.kw}"></label></div>
+   ${preisFelder()}</details>`);
+  pillGroup('vk',v=>{V.kw=num(v);vkw.value=V.kw;vupd()}); pillGroup('vte',v=>{V.te=num(v);vupd()});
+  vs.addEventListener('input',()=>{V.std=num(vs.value);vupd()});
+  vkw.addEventListener('input',()=>{V.kw=num(vkw.value);document.querySelectorAll('#vk .pill').forEach(p=>p.classList.toggle('on',num(p.dataset.v)===V.kw));vupd()});
+  preisBind(vupd); vupd();
+}
+function vupd(){
+  vsv.textContent=V.std+(V.std===1?' Stunde':' Stunden');
+  const rows=HEIZARTEN.map(a=>{const p=preisWaerme(a[0],V.te);return {name:a[2],e:p.e,std:V.kw*p.e,wie:p.wie};}).sort((a,b)=>a.std-b.std);
+  const max=rows[rows.length-1].std, best=rows[0], strom=rows.find(r=>r.name.startsWith('Heizlüfter'));
+  const extra=`<div class="bars">${rows.map((r,i)=>`<div class="bar">${esc(r.name)} <b>${ct(r.std)}/Std.</b> · ${eur(r.std*V.std*30)}/Monat<div class="track"><div class="fill${i===0?' best':''}" style="width:${Math.max(3,r.std/max*100)}%"></div></div></div>`).join('')}</div>`;
+  const say=`Am günstigsten: ${esc(best.name)} mit etwa ${ct(best.std)} pro Stunde.`;
+  const more=`Für ${fmt(V.kw,1)} kW Wärme bei ${gradC(V.te)} draußen. Der Heizlüfter kostet ${ct(strom.std)} pro Stunde – ${fmt(strom.std/best.std,1)}-mal so viel.`;
+  const tips=['Einen „sparsamen Heizlüfter“ gibt es nicht: Jeder Heizlüfter, Ölradiator, Keramik- oder Infrarotheizer macht aus 1 kWh Strom genau 1 kWh Wärme. Weniger Watt heißt nur weniger Wärme.','Infrarot fühlt sich direkt davor wärmer an, weil es Körper und Wände anstrahlt – der Verbrauch je kWh ist aber derselbe.','Ein Split-Klimagerät mit Heizfunktion (fest installiert) ist die günstigste elektrische Heizung. Mobile Monoblock-Klimageräte heizen meist nicht oder schlecht.'];
+  const copy=`Heizkosten-Vergleich für ${fmt(V.kw,1)} kW Wärme bei ${gradC(V.te)} draußen, pro Stunde: ${rows.map(r=>`${r.name} ${ct(r.std)}`).join(', ')}. Ein Heizlüfter, Ölradiator oder Infrarotheizer macht aus 1 kWh Strom immer genau 1 kWh Wärme – „sparsame Heizlüfter“ gibt es deshalb nicht, nur schwächere.`;
+  vres.innerHTML=antwortBox('ok','Antwort',say,more,tips,copy,`Preise: Strom ${fmt(P.strom,1)} ct, Gas ${fmt(P.gas,1)} ct, Fernwärme ${fmt(P.fern,1)} ct je kWh, Heizöl ${fmt(P.oel,2)} €/l, Wärmepumpen-Strom ${fmt(P.wp,1)} ct. Wärmepumpe und Klimagerät mit Faustwerten für die Effizienz bei dieser Außentemperatur.`,extra);
+  zaehle('vergleich');
+}
+
+// ================= 3) Fenster & Schimmel =================
+// Fenster: [U-Wert in W/m²K, Temperaturfaktor am Scheibenrand (Schätzung), Name]
+const FENSTER=[['5.8','0.30','Einfachglas'],['2.8','0.45','alte Doppelverglasung (vor ca. 1995)'],['1.1','0.60','Zweifach-Wärmeschutzglas'],['0.7','0.70','Dreifachglas']];
+// Wand-Außenecke: Temperaturfaktor fRsi
+const WAND=[['0.65','Altbau, ungedämmt'],['0.75','teilsaniert / ab ca. 1995'],['0.85','gut gedämmt']];
+const F={ti:20,rf:55,te:0,u:'1.1',w:'0.75'};
+function fenster(){
+  h(`<h2>Warum beschlägt mein Fenster – droht Schimmel?</h2>
+  ${slider('fti','Raumtemperatur',14,26,0.5,F.ti)}
+  ${slider('frf','Luftfeuchtigkeit im Raum (Hygrometer)',25,85,1,F.rf)}
+  ${slider('fte','Außentemperatur',-15,15,1,F.te)}
+  <div class="step" style="margin-top:6px">Welche Fenster?</div>
+  ${pills('fu',FENSTER.map(f=>[f[0],f[2]]),F.u)}
+  <div id="fres"></div>
+  <details class="fine"><summary>Wände genauer einstellen</summary>
+   <div class="step" style="margin-top:10px">Außenwand</div>${pills('fw',WAND,F.w)}
+   <p class="hint">Am kältesten sind Außenecken, Fensterlaibungen und Stellen hinter Schränken an Außenwänden.</p></details>`);
+  const upd=()=>{F.ti=num(fti.value);F.rf=num(frf.value);F.te=num(fte.value);ftiv.textContent=gradC(F.ti);frfv.textContent=fmt(F.rf)+' %';ftev.textContent=gradC(F.te);fupd();};
+  [fti,frf,fte].forEach(el=>el.addEventListener('input',upd));
+  pillGroup('fu',v=>{F.u=v;fupd()}); pillGroup('fw',v=>{F.w=v;fupd()}); upd();
+}
+function fupd(){
+  const fe=FENSTER.find(f=>f[0]===F.u), U=num(fe[0]), fRand=num(fe[1]), fW=num(F.w), d=F.ti-F.te;
+  const tGlas=F.ti-U*0.13*d, tRand=F.te+fRand*d, tWand=F.te+fW*d, tp=taupunkt(F.ti,F.rf);
+  const rfGlas=Math.min(100,100*sdd(tGlas)/sdd(F.ti)), rfRand=Math.min(100,100*sdd(tRand)/sdd(F.ti)), rfSchimmel=Math.min(100,80*sdd(tWand)/sdd(F.ti));
+  let cls,say;
+  if(F.rf>=rfSchimmel){cls='bad';say=`Zu feucht: In kalten Außenecken kann bei ${fmt(F.rf)} % Schimmel entstehen.`;}
+  else if(F.rf>=rfRand){cls='warn';say=F.rf>=rfGlas?'Das Fenster beschlägt auf der ganzen Scheibe.':'Das Fenster beschlägt am Rand – das ist bei diesen Werten normal.';}
+  else {cls='ok';say='Passt: Das Fenster sollte nicht beschlagen.';}
+  const extra=`<div class="thermo">
+   <div class="t-cold"><b>${gradC(Math.round(tRand*10)/10)}</b>Scheiben­rand</div>
+   <div class="${tGlas<tp?'t-cold':''}"><b>${gradC(Math.round(tGlas*10)/10)}</b>Scheibe Mitte</div>
+   <div class="t-cold"><b>${gradC(Math.round(tWand*10)/10)}</b>Wand­ecke</div>
+   <div class="t-mark"><b>${gradC(Math.round(tp*10)/10)}</b>Tau­punkt</div></div>`;
+  const more=`Bei ${gradC(F.ti)} und ${fmt(F.rf)} % liegt der Taupunkt bei <b>${fmt(tp,1)} °C</b>: Jede Fläche, die kälter ist, wird nass. Dein Fenster beschlägt am Rand ab etwa <b>${fmt(rfRand)} %</b>, in der Mitte ab <b>${fmt(rfGlas)} %</b> Luftfeuchte. Für Schimmel in Außenecken wird es ab etwa <b>${fmt(rfSchimmel)} %</b> kritisch.`;
+  const tips=[];
+  if(F.rf>=rfSchimmel) tips.push(`Luftfeuchte unter ${fmt(Math.max(30,rfSchimmel-5))} % bringen: 3–4× täglich 5–10 Minuten stoßlüften, nach Duschen und Kochen sofort.`);
+  if(F.rf>=rfRand&&F.rf<rfSchimmel) tips.push('Beschlag am Scheibenrand ist kein Fensterfehler: Dort ist das Glas am kältesten. Morgens trocken wischen und stoßlüften.');
+  tips.push('Möbel 5–10 cm von Außenwänden abrücken und Räume nicht unter 16 °C auskühlen lassen.');
+  if(U>=2.8) tips.push('Bei Einfachglas oder alter Doppelverglasung beschlagen die Scheiben schon bei normaler Luftfeuchte – das schützt sogar die Wände ein wenig, weil sich das Wasser am Fenster sammelt.');
+  const copy=`Kondenswasser-Check: Bei ${gradC(F.ti)} innen, ${fmt(F.rf)} % Luftfeuchte und ${gradC(F.te)} draußen liegt der Taupunkt bei ${fmt(tp,1)} °C. ${fe[2]}: Scheibenrand ca. ${fmt(tRand,1)} °C, Mitte ca. ${fmt(tGlas,1)} °C → Beschlag am Rand ab ca. ${fmt(rfRand)} %, in der Mitte ab ca. ${fmt(rfGlas)} % Luftfeuchte. Schimmelgefahr in Außenecken (${WAND.find(w=>w[0]===F.w)[1]}) ab ca. ${fmt(rfSchimmel)} %. ${say}`;
+  fres.innerHTML=antwortBox(cls,'Antwort',say,more,tips,copy,'Rechnung: Taupunkt nach Magnus-Formel; Glas in der Mitte über den U-Wert (Wärmeübergang innen 0,13 m²K/W), Scheibenrand und Wandecke über Temperaturfaktoren (Schätzwerte). Schimmel kann ab 80 % Feuchte direkt an der Oberfläche wachsen.',extra);
+  zaehle('fenster');
+}
+
+// ================= 4) Lüften =================
+const L={te:5,rfa:85,ti:20,rf:60,m2:20};
+function lueftDauer(te){ if(te<3) return [4,6]; if(te<8) return [8,10]; if(te<12) return [12,15]; if(te<16) return [16,20]; return [25,30]; }
+function lueften(){
+  h(`<h2>Wie lange soll ich lüften?</h2>
+  ${slider('lte','Außentemperatur',-15,30,1,L.te)}
+  <div class="step" style="margin-top:6px">Wetter draußen</div>
+  ${pills('lra',[[95,'Regen / Nebel'],[85,'normal'],[65,'trocken, sonnig']],L.rfa)}
+  ${slider('lrf','Luftfeuchtigkeit im Raum',25,85,1,L.rf)}
+  <div id="lres"></div>
+  <details class="fine"><summary>Genauer einstellen</summary><div class="fields">
+   <label class="field"><span>Raumtemperatur (°C)</span><input type="number" id="lti" inputmode="decimal" step="0.5" value="${L.ti}"></label>
+   <label class="field"><span>Raumgröße (m²)</span><input type="number" id="lm" inputmode="numeric" min="1" value="${L.m2}"></label>
+   <label class="field"><span>Gaspreis (ct/kWh)</span><input type="number" data-preis="gas" inputmode="decimal" step="0.1" value="${P.gas}"></label></div></details>`);
+  const upd=()=>{L.te=num(lte.value);L.rf=num(lrf.value);ltev.textContent=gradC(L.te);lrfv.textContent=fmt(L.rf)+' %';lupd();};
+  [lte,lrf].forEach(el=>el.addEventListener('input',upd)); pillGroup('lra',v=>{L.rfa=num(v);lupd()});
+  lti.addEventListener('input',()=>{L.ti=num(lti.value);lupd()}); lm.addEventListener('input',()=>{L.m2=num(lm.value)||20;lupd()});
+  preisBind(lupd); upd();
+}
+function lupd(){
+  const [a,b]=lueftDauer(L.te), rfNachher=rfBei(L.te,L.rfa,L.ti), ahA=absFeuchte(L.te,L.rfa), ahI=absFeuchte(L.ti,L.rf);
+  const dT=Math.max(0,L.ti-L.te), vol=L.m2*2.5, kwhStoss=vol*0.34*dT/1000, kwhKipp=kwhStoss*2; // Kipp: etwa zweimal Luftwechsel je Stunde
+  const eurStoss=kwhStoss*P.gas/100/0.9, eurKipp=kwhKipp*P.gas/100/0.9;
+  const trocknet=ahA<ahI;
+  let cls=trocknet?'ok':'warn';
+  const say=L.te>=L.ti?'Bei dieser Wärme draußen: lieber morgens und abends lüften, wenn es kühler ist.':`Etwa ${a}–${b} Minuten stoßlüften, 3- bis 4-mal am Tag.`;
+  const more=trocknet?`Die Außenluft hat ${fmt(L.rfa)} % Feuchte, im Raum auf ${gradC(L.ti)} erwärmt aber nur noch <b>${fmt(rfNachher)} %</b>. Lüften macht die Raumluft also trockener – auch bei Regen.`:`Achtung: Die Außenluft enthält gerade mehr Wasser (${fmt(ahA,1)} g/m³) als die Raumluft (${fmt(ahI,1)} g/m³). Lüften macht es jetzt feuchter – besonders in kühlen Kellern.`;
+  const tips=[];
+  if(dT>0) tips.push(`Einmal Stoßlüften kostet bei ${fmt(L.m2)} m² nur etwa ${ct(eurStoss)} Heizenergie. Eine Stunde gekipptes Fenster dagegen rund ${ct(eurKipp)} – und kühlt die Wände aus.`);
+  tips.push('Fenster ganz öffnen, am besten gegenüberliegende (Durchzug). Heizung währenddessen zudrehen.');
+  if(L.rf>=60) tips.push(`Mit ${fmt(L.rf)} % ist die Raumluft eher feucht – zusätzlich nach Duschen, Kochen und Wäschetrocknen lüften. Ziel im Winter: 40–60 %.`);
+  const copy=`Lüften bei ${gradC(L.te)} draußen: ${say} Außenluft mit ${fmt(L.rfa)} % hat erwärmt auf ${gradC(L.ti)} nur noch ca. ${fmt(rfNachher)} % Feuchte – ${trocknet?'Lüften trocknet also auch bei Regen.':'gerade enthält sie aber mehr Wasser als die Raumluft, Lüften macht es feuchter.'}${dT>0?` Einmal Stoßlüften kostet bei ${fmt(L.m2)} m² etwa ${ct(eurStoss)} Heizenergie, eine Stunde Kippen rund ${ct(eurKipp)}.`:''}`;
+  lres.innerHTML=antwortBox(cls,'Antwort',say,more,tips,copy,'Lüftzeiten nach gängigen Empfehlungen je Jahreszeit. Feuchte: dieselbe Luft hat bei höherer Temperatur weniger relative Feuchte (Magnus-Formel). Wärmeverlust: Raumluft × 0,34 Wh/(m³·K) × Temperaturunterschied.');
+  zaehle('lueften');
+}
+
+// ================= 5) Abschlag =================
+const A={art:'gas',einheit:'kwh',verbrauch:12000,faktor:10,ap:11,gp:15,abschlag:120,monate:12};
+function abschlag(){
+  h(`<h2>Nachzahlung oder Guthaben?</h2>
+  ${pills('aa',[['gas','Gas'],['fern','Fernwärme'],['strom','Strom']],A.art)}
+  <div class="fields">
+   <label class="field"><span>Verbrauch im Jahr</span><input type="number" id="av" inputmode="decimal" min="0" value="${A.verbrauch}"></label>
+   <label class="field"><span>Einheit</span><select id="ae"><option value="kwh"${A.einheit==='kwh'?' selected':''}>kWh</option><option value="m3"${A.einheit==='m3'?' selected':''}>m³ (Gaszähler)</option></select></label>
+   <label class="field"><span>Arbeitspreis (ct/kWh)</span><input type="number" id="aap" inputmode="decimal" step="0.01" value="${A.ap}"></label>
+   <label class="field"><span>Grundpreis (€/Monat)</span><input type="number" id="agp" inputmode="decimal" step="0.01" value="${A.gp}"></label>
+   <label class="field"><span>Abschlag (€/Monat)</span><input type="number" id="aab" inputmode="decimal" step="1" value="${A.abschlag}"></label>
+   <label class="field"><span>Monate</span><input type="number" id="amo" inputmode="numeric" min="1" max="12" value="${A.monate}"></label>
+  </div>
+  <div id="am3" class="${A.einheit==='m3'?'':'hide'}"><div class="fields"><label class="field"><span>kWh je m³ (Brennwert × Zustandszahl)</span><input type="number" id="af" inputmode="decimal" step="0.01" value="${A.faktor}"></label></div>
+  <p class="hint">Beide Werte stehen auf der Gasrechnung, zusammen meist um 10 kWh je m³.</p></div>
+  <div id="ares"></div>`);
+  const bind=(id,key)=>document.getElementById(id).addEventListener('input',e=>{A[key]=num(e.target.value);aupd()});
+  bind('av','verbrauch');bind('aap','ap');bind('agp','gp');bind('aab','abschlag');bind('af','faktor');
+  amo.addEventListener('input',()=>{A.monate=Math.min(12,Math.max(1,num(amo.value)||12));aupd()});
+  ae.onchange=()=>{A.einheit=ae.value;am3.classList.toggle('hide',A.einheit!=='m3');aupd()};
+  pillGroup('aa',v=>{A.art=v; const d={gas:[11,15],fern:[16,20],strom:[35,12]}[v]; A.ap=d[0];A.gp=d[1];aap.value=A.ap;agp.value=A.gp; if(v!=='gas'){A.einheit='kwh';ae.value='kwh';am3.classList.add('hide');} aupd();});
+  aupd();
+}
+function aupd(){
+  const kwh=A.einheit==='m3'?A.verbrauch*A.faktor:A.verbrauch;
+  const kosten=(kwh*A.ap/100+A.gp*12)*A.monate/12, gezahlt=A.abschlag*A.monate, diff=gezahlt-kosten, neu=Math.ceil(kosten/A.monate/5)*5;
+  const name={gas:'Gas',fern:'Fernwärme',strom:'Strom'}[A.art];
+  let cls,say;
+  if(Math.abs(diff)<10){cls='ok';say='Passt: Dein Abschlag deckt die Kosten fast genau.';}
+  else if(diff>0){cls='ok';say=`Etwa ${eur(diff)} Guthaben.`;}
+  else {cls='bad';say=`Etwa ${eur(-diff)} Nachzahlung.`;}
+  const more=`Kosten: ${fmt(kwh)} kWh × ${fmt(A.ap,2)} ct + ${fmt(A.gp,2)} € Grundpreis × 12 = <b>${eur(kosten)}</b>${A.monate<12?` (anteilig ${A.monate} Monate)`:''}. Gezahlt: ${A.monate} × ${eur(A.abschlag)} = <b>${eur(gezahlt)}</b>. Passender Abschlag: etwa <b>${eur(neu)} im Monat</b>.`;
+  const tips=[];
+  if(diff<-10) tips.push(`Den Abschlag jetzt auf etwa ${eur(neu)} erhöhen – dann gibt es nächstes Jahr keine große Nachzahlung. Das geht meist im Kundenportal des Versorgers.`);
+  if(A.einheit==='m3') tips.push(`${fmt(A.verbrauch)} m³ × ${fmt(A.faktor,2)} = ${fmt(kwh)} kWh.`);
+  tips.push('Ein kalter Winter oder ein neuer Preis verschiebt das Ergebnis. Bei einer Preiserhöhung den neuen Arbeitspreis oben eintragen.');
+  if(A.art!=='strom') tips.push('Bei Mietwohnungen mit Zentralheizung kommen Heizkosten über die Nebenkostenabrechnung – dort zählen Verbrauch und Anteil am Haus, nicht dieser Tarif.');
+  const copy=`${name}-Abrechnung: ${fmt(kwh)} kWh${A.einheit==='m3'?` (${fmt(A.verbrauch)} m³ × ${fmt(A.faktor,2)})`:''} × ${fmt(A.ap,2)} ct/kWh + ${fmt(A.gp,2)} €/Monat Grundpreis = ${eur(kosten)}${A.monate<12?` für ${A.monate} Monate`:' im Jahr'}. Gezahlt: ${A.monate} × ${eur(A.abschlag)} = ${eur(gezahlt)} → ${say} Passender Abschlag: ca. ${eur(neu)} im Monat.`;
+  ares.innerHTML=antwortBox(cls,'Antwort',say,more,tips,copy,'');
+  zaehle('abschlag');
+}
+
+// ================= Navigation =================
+const SEITEN={kosten,vergleich,fenster,lueften,abschlag};
+function route(){
+  const t=location.hash.slice(1);
+  document.getElementById('back').classList.toggle('hide',!SEITEN[t]);
+  zaehle(SEITEN[t]?t:'start','aufruf');
+  (SEITEN[t]||start)();
+}
+document.getElementById('home').onclick=()=>{location.hash='';};
+document.getElementById('back').onclick=()=>{location.hash='';};
+window.addEventListener('hashchange',route);
+route();
+</script>
+</body>
+</html>
